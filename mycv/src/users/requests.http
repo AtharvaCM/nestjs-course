@@ -6,3 +6,9 @@ content-type: application/json
   "email": "xyz@test.com",
   "password": "somepaasdssword"
 }
+
+### Find a particular User with given id
+GET http://localhost:3000/auth/1
+
+### Find all users with a given email
+GET http://localhost:3000/auth?email=test@test.com
