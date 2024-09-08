@@ -1,3 +1,4 @@
+import { AuthGuard } from 'src/guards/auth.guard';
 import { Serialize } from 'src/interceptors/serialize.interceptor';
 
 import {
@@ -11,7 +12,7 @@ import {
   Post,
   Query,
   Session,
-  UseInterceptors,
+  UseGuards,
 } from '@nestjs/common';
 
 import { AuthService } from './auth.service';
@@ -19,14 +20,12 @@ import { CurrentUser } from './decorators/current-user.decorator';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { UpdateUserDto } from './dtos/update-user-dto';
 import { UserDto } from './dtos/user.dto';
-import { CurrentUserInterceptor } from './interceptors/current-user.interceptor';
 import { User } from './user.entity';
 import { UsersService } from './users.service';
 
 // This deco can be applied to controller or single route handlers as well
 @Serialize(UserDto) // Custom decorator
 @Controller('auth')
-@UseInterceptors(CurrentUserInterceptor) // runs before the decorators
 export class UsersController {
   constructor(
     private usersService: UsersService,
@@ -45,6 +44,7 @@ export class UsersController {
   }
 
   @Get('/whoami')
+  @UseGuards(AuthGuard)
   whoAmI(@CurrentUser() user: User) {
     return user;
   }
