@@ -1,25 +1,32 @@
+import { Serialize } from 'src/interceptors/serialize.interceptor';
+
 import {
   Body,
   Controller,
-  Param,
-  Post,
-  Get,
-  Query,
   Delete,
-  Patch,
+  Get,
   NotFoundException,
+  Param,
+  Patch,
+  Post,
+  Query,
   Session,
+  UseInterceptors,
 } from '@nestjs/common';
-import { CreateUserDto } from './dtos/create-user.dto';
-import { UsersService } from './users.service';
-import { UpdateUserDto } from './dtos/update-user-dto';
-import { Serialize } from 'src/interceptors/serialize.interceptor';
-import { UserDto } from './dtos/user.dto';
+
 import { AuthService } from './auth.service';
+import { CurrentUser } from './decorators/current-user.decorator';
+import { CreateUserDto } from './dtos/create-user.dto';
+import { UpdateUserDto } from './dtos/update-user-dto';
+import { UserDto } from './dtos/user.dto';
+import { CurrentUserInterceptor } from './interceptors/current-user.interceptor';
+import { User } from './user.entity';
+import { UsersService } from './users.service';
 
 // This deco can be applied to controller or single route handlers as well
 @Serialize(UserDto) // Custom decorator
 @Controller('auth')
+@UseInterceptors(CurrentUserInterceptor) // runs before the decorators
 export class UsersController {
   constructor(
     private usersService: UsersService,
@@ -38,8 +45,8 @@ export class UsersController {
   }
 
   @Get('/whoami')
-  whoAmI(@Session() session: any) {
-    return this.usersService.findOne(session.userId);
+  whoAmI(@CurrentUser() user: User) {
+    return user;
   }
 
   @Post('/signout')
@@ -84,6 +91,6 @@ export class UsersController {
 
   @Patch('/:id')
   updateUser(@Param('id') id: string, @Body() body: UpdateUserDto) {
-    return this, this.usersService.update(parseInt(id), body);
+    return this.usersService.update(parseInt(id), body);
   }
 }

@@ -1,4 +1,4 @@
-### Create a new User
+### Create a new User / SgnIn
 POST http://localhost:3000/auth/signin
 content-type: application/json
 
