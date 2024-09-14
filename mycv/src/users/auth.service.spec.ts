@@ -10,10 +10,22 @@ describe('AuthService', () => {
   let fakeUsersService: Partial<UsersService>;
 
   beforeEach(async () => {
+    const users: User[] = [];
+
     fakeUsersService = {
-      find: () => Promise.resolve([]),
-      create: (email: string, password: string) =>
-        Promise.resolve({ id: 1, email, password } as User),
+      find: (email: string) => {
+        const filteredUsers = users.filter((user) => user.email === email);
+        return Promise.resolve(filteredUsers);
+      },
+      create: (email: string, password: string) => {
+        const user = {
+          id: Math.floor(Math.random() * 999999),
+          email,
+          password,
+        } as User;
+        users.push(user);
+        return Promise.resolve({ id: 1, email, password } as User);
+      },
     };
 
     const module = await Test.createTestingModule({
@@ -40,10 +52,7 @@ describe('AuthService', () => {
   });
 
   it('throws an error if user signs up with email that is in use', async () => {
-    fakeUsersService.find = () =>
-      Promise.resolve([
-        { id: 1, email: 'test@example.com', password: 'testpassword' } as User,
-      ]);
+    await service.signup('test@example.com', 'mypassword');
 
     await expect(
       service.signup('test@example.com', 'testpassword'),
@@ -57,10 +66,7 @@ describe('AuthService', () => {
   });
 
   it('throws an error if an invalid password is provided', async () => {
-    fakeUsersService.find = () =>
-      Promise.resolve([
-        { email: 'test@example.com', password: 'correctpassword' } as User,
-      ]);
+    await service.signup('test@example.com', 'correctpassword');
 
     await expect(
       service.signin('test@example.com', 'incorrectpassowrd'),
@@ -68,14 +74,7 @@ describe('AuthService', () => {
   });
 
   it('returns an user if a correct password is provided', async () => {
-    fakeUsersService.find = () =>
-      Promise.resolve([
-        {
-          email: 'test@example.com',
-          password:
-            '54402f4329e1823e.1c6b501c8dcbfe29136539438b91115e6e74618e9b84baec353d85ee7b23f1f5',
-        } as User,
-      ]);
+    await service.signup('test@example.com', 'mypassword');
 
     const user = await service.signin('test@example.com', 'mypassword');
     expect(user).toBeDefined();
