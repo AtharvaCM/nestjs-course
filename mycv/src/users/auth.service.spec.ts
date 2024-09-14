@@ -31,7 +31,7 @@ describe('AuthService', () => {
   });
 
   it('creates a new user with a salted and hashed password', async () => {
-    const user = await service.signup('test@example.com', 'asddf');
+    const user = await service.signup('test@example.com', 'testpassword');
 
     expect(user.password).not.toEqual('asddf');
     const [salt, hash] = user.password.split('.');
@@ -41,16 +41,43 @@ describe('AuthService', () => {
 
   it('throws an error if user signs up with email that is in use', async () => {
     fakeUsersService.find = () =>
-      Promise.resolve([{ id: 1, email: 'a', password: '1' } as User]);
+      Promise.resolve([
+        { id: 1, email: 'test@example.com', password: 'testpassword' } as User,
+      ]);
 
-    await expect(service.signup('asdf@asdf.com', 'asdf')).rejects.toThrow(
-      BadRequestException,
-    );
+    await expect(
+      service.signup('test@example.com', 'testpassword'),
+    ).rejects.toThrow(BadRequestException);
   });
 
-  it('throws if signin is called with an unused email', async () => {
+  it('throws an error if signin is called with an unused email', async () => {
     await expect(
-      service.signin('asdflkj@asdlfkj.com', 'passdflkj'),
+      service.signin('test@example.com', 'testpassword'),
     ).rejects.toThrow(NotFoundException);
+  });
+
+  it('throws an error if an invalid password is provided', async () => {
+    fakeUsersService.find = () =>
+      Promise.resolve([
+        { email: 'test@example.com', password: 'correctpassword' } as User,
+      ]);
+
+    await expect(
+      service.signin('test@example.com', 'incorrectpassowrd'),
+    ).rejects.toThrow(BadRequestException);
+  });
+
+  it('returns an user if a correct password is provided', async () => {
+    fakeUsersService.find = () =>
+      Promise.resolve([
+        {
+          email: 'test@example.com',
+          password:
+            '54402f4329e1823e.1c6b501c8dcbfe29136539438b91115e6e74618e9b84baec353d85ee7b23f1f5',
+        } as User,
+      ]);
+
+    const user = await service.signin('test@example.com', 'mypassword');
+    expect(user).toBeDefined();
   });
 });
