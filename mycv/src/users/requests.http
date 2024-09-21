@@ -18,11 +18,11 @@ GET http://localhost:3000/auth?email=johndow@nest.com
 DELETE http://localhost:3000/auth/4
 
 ### Update a User
-PATCH http://localhost:3000/auth/2
+PATCH http://localhost:3000/auth/1
 content-type: application/json
 
 {
-  "password": "updatedpass"
+  "admin": "true"
 }
 
 ### Get the currently signed in user
