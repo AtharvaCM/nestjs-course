@@ -23,7 +23,7 @@ import { UsersModule } from './users/users.module';
       useFactory: (config: ConfigService) => {
         return {
           type: 'sqlite',
-          database: config.get('DB_NAME'),
+          database: config.get<string>('DB_NAME'),
           entities: [Report, User],
           synchronize: true, // Don't use this in production
         };

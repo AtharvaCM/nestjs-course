@@ -24,8 +24,8 @@ import { User } from './user.entity';
 import { UsersService } from './users.service';
 
 // This deco can be applied to controller or single route handlers as well
-@Serialize(UserDto) // Custom decorator
 @Controller('auth')
+@Serialize(UserDto) // Custom decorator
 export class UsersController {
   constructor(
     private usersService: UsersService,
