@@ -3,9 +3,10 @@ import { DataSource, DataSourceOptions } from 'typeorm';
 export const appDataSource = new DataSource({
   type: 'sqlite',
   database: 'db.sqlite',
-  entities: [__dirname + '/**/*.entity{.js,.ts}'],
+  entities: [__dirname + '/src/**/*.entity{.js,.ts}'],
   migrations: [__dirname + '/migrations/*{.js,.ts}'],
 } as DataSourceOptions);
+console.log('__dirname: ', __dirname);
 
 appDataSource
   .initialize()
